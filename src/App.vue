@@ -1,53 +1,57 @@
 <template>
   <section class="todoapp">
+
+      
 			<header class="header">
-				<h1>todos</h1>
-				<input class="new-todo" placeholder="What needs to be done?" autofocus>
+				<h1>To do list</h1>
+				<input class="new-todo" placeholder="What needs to be done?" autofocus v-model="newTodo" @keyup.enter="ajoutTab">
 			</header>
-			<!-- This section should be hidden by default and shown when there are todos -->
+			
 			<section class="main">
-				<input id="toggle-all" class="toggle-all" type="checkbox">
-				<label for="toggle-all">Mark all as complete</label>
+				
+        <input id="toggle-all" class="toggle-all" type="checkbox"   >
+        <label for="toggle-all">Mark all as complete</label>
+
 				<ul class="todo-list">
-					<!-- These are here just to show the structure of the list items -->
-					<!-- List items should get the class `editing` when editing and `completed` when marked as completed -->
-					<li class="completed">
+					
+					<li v-show="todo.name"  v-for="(todo,index) of groupeT" :key="index" :class="{'completed': todo.etat == true, 'editing': todo === edit}">
+
 						<div class="view">
-							<input class="toggle" type="checkbox" checked>
-							<label>Taste JavaScript</label>
-							<button class="destroy"></button>
+							<input class="toggle" type="checkbox" v-model="todo.etat">
+							<label @dblclick="cliqueEdit(todo)" > {{ todo.name }} </label>
+							<button class="destroy" @click="deleteTodo(index)" ></button>
 						</div>
-						<input class="edit" value="Create a TodoMVC template">
+
+						<input type="text" class="edit" v-model="todo.name" @keyup.enter="enterEdit">
+
 					</li>
-					<li>
-						<div class="view">
-							<input class="toggle" type="checkbox">
-							<label>Buy a unicorn</label>
-							<button class="destroy"></button>
-						</div>
-						<input class="edit" value="Rule the web">
-					</li>
+					
 				</ul>
+
+				
 			</section>
-			<!-- This footer should be hidden by default and shown when there are todos -->
+
+			
 			<footer class="footer">
 				<!-- This should be `0 items left` by default -->
-				<span class="todo-count"><strong>0</strong> item left</span>
+				<span class="todo-count"><strong>{{ rest }}</strong> Task to do</span>
 				<!-- Remove this if you don't implement routing -->
 				<ul class="filters">
 					<li>
-						<a class="selected" href="#/">All</a>
+						<a :class="{selected: groupe == 'all'}" @click="groupe = 'all'" href="#/">All</a>
 					</li>
 					<li>
-						<a href="#/active">Active</a>
+						<a :class="{selected: groupe == 'active'}" @click="groupe = 'active'"  href="#/active">Active</a>
 					</li>
 					<li>
-						<a href="#/completed">Completed</a>
+						<a :class="{selected: groupe == 'completed'}" @click="groupe = 'completed'" href="#/completed">Completed</a>
 					</li>
 				</ul>
 				<!-- Hidden if no completed items are left ↓ -->
-				<button class="clear-completed">Clear completed</button>
+				<button class="clear-completed" v-show="clearBtn" @click="clearCompleted()">Clear completed</button>
 			</footer>
+  
+
 		</section>
 </template>
 
@@ -56,6 +60,49 @@
 
 export default {
   
+  data(){
+    return {
+      todos: [{name: '', etat: false}],
+      newTodo: '' ,
+      groupe: 'all',
+      edit: null,
+    }
+    
+  },
+  methods: {
+    ajoutTab () {
+      this.todos.push({etat: false, name: this.newTodo,})
+      this.newTodo = ''
+    },
+    deleteTodo (index){
+      this.todos.splice(index,1)
+    },
+    clearCompleted () {
+     this.todos = this.todos.filter(todo => !todo.etat ) // Etat = false, nouveau tableau avec valeur = false
+    },
+    cliqueEdit (todo) {
+      this.edit = todo
+    },
+    enterEdit (){
+      this.edit = null
+    }
+  },
+  computed: {
+    rest (){
+      return this.todos.filter(todo => !todo.etat).length - 1 //Etat = false, création tableau avec les valeurs non complété
+    },
+    clearBtn () {
+      return this.todos.filter(todo => todo.etat).length // Etat = true, création tableau avec valeur = false
+    },
+    groupeT (){
+      if(this.groupe == 'active'){
+        return this.todos.filter(todo => !todo.etat) //Etat = false
+      } else if (this.groupe == 'completed'){
+        return this.todos.filter(todo => todo.etat) //Etat = true
+      } return this.todos
+    },
+  
+  }
 }
 </script>
 
