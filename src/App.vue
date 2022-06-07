@@ -7,18 +7,18 @@
 				<input class="new-todo" placeholder="What needs to be done?" autofocus v-model="newTodo" @keyup.enter="ajoutTab">
 			</header>
 			
-			<section class="main">
+			<section class="main" >
 				
-        <input id="toggle-all" class="toggle-all" type="checkbox"   >
+        <input @click="fleche = !fleche" id="toggle-all" class="toggle-all" type="checkbox" v-model="cliqueFleche"  >
         <label for="toggle-all">Mark all as complete</label>
 
-				<ul class="todo-list">
+				<ul  class="todo-list">
 					
-					<li v-show="todo.name"  v-for="(todo,index) of groupeT" :key="index" :class="{'completed': todo.etat == true, 'editing': todo === edit}">
+					<li class="todo" v-for="(todo,index) of groupeT" :key="index" :class="{'completed': todo.etat == true, 'editing': todo === edit}">
 
 						<div class="view">
-							<input class="toggle" type="checkbox" v-model="todo.etat">
-							<label @dblclick="cliqueEdit(todo)" > {{ todo.name }} </label>
+							<input class="toggle" type="checkbox" v-model="todo.etat" >
+							<label @dblclick="cliqueEdit(todo)" >{{ todo.name }}</label>
 							<button class="destroy" @click="deleteTodo(index)" ></button>
 						</div>
 
@@ -62,10 +62,11 @@ export default {
   
   data(){
     return {
-      todos: [{name: '', etat: false}],
+      todos: [{name: '(Ajouter)' , etat: false}],
       newTodo: '' ,
       groupe: 'all',
       edit: null,
+      fleche: false,
     }
     
   },
@@ -85,11 +86,12 @@ export default {
     },
     enterEdit (){
       this.edit = null
-    }
+    },
+    
   },
   computed: {
     rest (){
-      return this.todos.filter(todo => !todo.etat).length - 1 //Etat = false, création tableau avec les valeurs non complété
+      return this.todos.filter(todo => !todo.etat).length //Etat = false, création tableau avec les valeurs non complété
     },
     clearBtn () {
       return this.todos.filter(todo => todo.etat).length // Etat = true, création tableau avec valeur = false
@@ -101,6 +103,19 @@ export default {
         return this.todos.filter(todo => todo.etat) //Etat = true
       } return this.todos
     },
+    cliqueFleche (){
+      if (this.fleche == true) {
+       this.todos.forEach(todo => {
+         todo.etat = true
+       });
+      } else if (this.fleche == false) {
+        this.todos.forEach(todo => {
+          todo.etat = false
+        })
+      }
+
+      return this.todos
+    }
   
   }
 }
